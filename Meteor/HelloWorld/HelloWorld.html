@@ -1,0 +1,19 @@
+<head>
+  <title>HelloWorld</title>
+</head>
+
+<body>
+	{{> hello}}
+	{{> canvas}}
+
+</body>
+
+<template name="hello">
+  <h1>Hello World!</h1>
+  <p><input type="button" value="Click"/></p>
+  {{greeting}}
+</template>
+<template name = "canvas">
+	<h2>Canvas:</h2>
+	<p><canvas id="c" width="500" height="600" style="border:3px solid">Your browser does not support HTML5.Honestly, why haven't you switched to chrome yet?</canvas> </p>
+</template>
