@@ -1,0 +1,185 @@
+<html>
+<body>
+	<p style = "position: fixed">&nbsp Press This Bar to Start Game (anywhere to the right of this text)</p>
+	<p><button id = "button1" style = 'width: 5000px; height:50px'></button></p>	
+	<canvas id = "canvas" width = "5000" height = "500" style = "border : 3px solid">Your browser does not support HTML5. Honestly, why haven't you switched to chrome yet?</canvas>
+	<p><i>Hint: land on the platforms to gain points. Want more of a challenge? Click the Start Game button twice!</i></p>
+	
+	<p id = "s" style = "position: fixed; font-family:arial; font-size:22px;">SCORE: <span id="score"></span></p>
+	<br><p id = "hs" style = "position: fixed; font-family:arial;font-size:22px;">HIGH SCORE: <span id = "highscore"></span></p>
+	<script>
+		var c = document.getElementById("canvas");
+		var scorespan = document.getElementById('score');
+		var hsspan = document.getElementById('highscore');
+		function updateScore(x){
+			hsspan.innerHTML = localStorage.getItem("hs");
+			scorespan.innerHTML = x;
+		}
+		var ctx = c.getContext("2d");
+		var gradient=ctx.createLinearGradient(0,0,c.width,0);
+		gradient.addColorStop("0","black");
+		gradient.addColorStop("0.25","gray");
+		gradient.addColorStop("0.5","black");
+		gradient.addColorStop(".75", "gray");
+		gradient.addColorStop("1.0", "black");
+		var r = 20;
+		var x = 20;
+		var y = c.height-r;
+		var scrollX = 0;
+		var sx = 1;
+		var vy = 0;
+		var speed = 5;
+		var floor = c.height;
+		var array = [];
+		var px = 500;
+		var score = 0;
+		for (var i = 0; i < c.width%400; i++) {
+			var r1 = Math.floor(Math.random()*100+250);
+			var r2 = Math.floor(Math.random()*10+100);
+    		array.push({x : px, y : c.height-r1, h : 10, w : r2});
+    		px += 350;
+		}
+		//var platob = {x : 500, y : c.height-200, h : 10, w : 100}
+		
+		var gameOn = false;
+		
+		var keys = [];
+		document.addEventListener('keydown', function(event){
+			ah = false; 
+			for(i = 0; i<keys.length; i++){
+				if(keys[i] == event.keyCode){
+					ah = true;
+					break;
+				}
+			}
+			if(!ah){
+				keys.push(event.keyCode);
+			}
+		});
+		document.addEventListener('keyup', function(event){
+				for(var i = 0; i<keys.length; i++){
+					if(keys[i] == event.keyCode){
+						keys.splice(i, 1);
+					}
+				}
+
+			});
+		var b1 = document.getElementById("button1");
+		b1.onclick = function(){
+			start();
+		}
+		function start(){
+			window.scroll(0, 0);
+			gameOn = true;
+			paint();
+		}
+
+		function paint(){
+			checkKeys();
+			if(gameOn){
+				if(x>250 && scrollX<c.width-500)
+				{
+					scrollX+=speed;
+				}
+				window.scroll(scrollX, 0);
+				c.width = c.width;
+				//ctx.font="30px Verdana";
+				//ctx.fillStyle = col;
+				//ctx.fillText("Your current score is: "+score, scrollX, 90)
+				//ctx.fillText("High Score is: " + localStorage.getItem("hs"), scrollX+100, 150);
+				updateScore(score);
+
+
+				ctx.setFillStyle = gradient;
+				//ctx.arc(x, y, r, 0, 2*Math.PI)
+				ctx.fillRect(x, y, r, r);
+				ctx.fill();
+				platform(array);
+				incC();
+				// if(x>100){
+				// 	scrollX++;
+				// 	console.log("SCROLL");
+				// }
+				// scrollWrapper(scrollX);
+				requestAnimationFrame(paint);
+			}
+			else{
+				c.width = c.width;
+				ctx.font="30px Verdana";
+				// Create gradient
+				// Fill with gradient
+				ctx.fillStyle=gradient;
+				for(var i = 10; i<c.width; i+=600){
+					ctx.fillText("Refresh page to start a new game",i,90);
+					ctx.fillText("Final score was: "+score, i+100, 150);
+					if(score>localStorage.getItem("hs"))
+					{
+						localStorage.setItem("hs", score);
+					}
+				}
+			}
+		}
+		// function scrollWrapper(scrollX){
+  //   		var wrapper = document.getElementById('wrapper');  
+  //   		wrapper.scrollTop(scrollX);
+		// }
+		function incC(){
+			x+=sx*speed;
+			//y+=sy*speed;
+			gravity();
+			//console.log(x, y);
+		}
+		function jump(){
+			//y-=100;
+			y-=6;
+			vy = -6;
+		}
+		function gravity(){
+			if(y+r<floor){
+				y+=vy;
+				if(vy<10)
+					vy+=.5;
+			}
+			else if(y>c.height-3)
+				y = c.height-r;
+				
+		}
+		function checkKeys(){
+			for(var i = 0; i<keys.length; i++)
+			{
+				if(keys[i] == 27){
+					gameOn = false;
+				}
+				if(keys[i] == 38 || keys[i] == 1){
+					jump();
+				}
+				// if(keys[i] == )
+			}
+		}
+		function platform(){
+			for(var i = 0; i<array.length; i++){
+				var platob = array[i];
+				if(x+r>platob.x && x<platob.x+platob.w){
+					floor = platob.y;
+					//vy=0;
+					//console.log("floor: "+floor + " ("+x+", "+y+")");
+					if(y>floor-r-5 && y<floor+r){
+						y = floor-r-5;
+						score++;
+						if(score>localStorage.getItem("hs"))
+							localStorage.setItem("hs", score);
+					}
+					if(y>floor+25){
+						gameOn = false;
+					}
+				}
+				else{
+					floor = c.height;
+				}
+				ctx.fillStyle = gradient;
+				ctx.fillRect(platob.x, platob.y, platob.w, c.height-platob.y);
+			}
+		}
+	</script>
+</body>
+</html>
